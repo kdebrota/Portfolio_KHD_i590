@@ -16,10 +16,16 @@ This repository is a collection of 'cheat sheets' and code snippets from i590 'a
 ## Data Cleaning and Quality (week 3)
 - placeholder
 ## Regular Expressions (week 4)
-- placeholder
+### Note: grab regex practice file from work computer and upload here. (practice in R for quiz) 
+How to search for, filter by, and manipulate strings of text, symbols, and digits to perform specific functions
+- Can use regular expressions in python and in R.
+- Cleaning data using regex expressions
+- Resources online: https://regexone.com/
 ## Tidying Data with dplyr (week 5)
 - placeholder
 ## (week 6)
 - placeholder
-## SQL
-- placeholder
+## SQL Information
+- This section contains some information, cheat sheets, code, and other files related to the course SQL and NoSQL.
+- Relational algebra for query structuring
+- MongoDB
