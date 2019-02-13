@@ -24,7 +24,7 @@ How to search for, filter by, and manipulate strings of text, symbols, and digit
 ## Tidying Data with dplyr (week 5)
 - Tidying practice using tidyr and dplyr
 - Using arrange, gather, mutate, and regex on the WHO dataset
-## (week 6)
+## Data Description (week 6)
 - placeholder
 ## SQL Information
 - This section contains some information, cheat sheets, code, and other files related to the course SQL and NoSQL.
