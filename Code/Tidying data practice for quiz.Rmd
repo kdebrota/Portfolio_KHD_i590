@@ -1,0 +1,46 @@
+---
+title: "Untitled"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+library("tidyverse")
+data(who)
+
+
+m1= who %>%
+  gather(Types, Cases, new_sp_m014:newrel_f65,na.rm=TRUE) %>% arrange(desc(Cases))%>%mutate(Types=stringr::str_replace(Types,"newrel","new_rel"))
+
+#The above code demonstrates how to use some of the tidying functions including 'mutate', 'arrange', and 'gather'.
+
+m2 = m1%>% separate(Types, into = c("Col1","Method","SexAge"), sep='_')
+m2%>%arrange(Method)%>%filter(Method=='sp')
+
+
+#The above code shows how to separate a column which contains several variables into several different columns. The columns 'Col1', 'Method', and 'SexAge' used to be one column which contained all of the different parts of those new columns separated by underscores. Example 'new_sp_m3544'. 
+
+```
+
