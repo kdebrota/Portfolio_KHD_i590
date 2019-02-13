@@ -1,0 +1,245 @@
+This text file contains MongoDB commands from the command prompt (administrator) for basic data management (adding collections, adding documents to collections, removing them, updating them, etc) and basic queries using MongoDB. 
+
+To start the MongoDB interface, follow these steps:
+
+1. Open cmd as administrator
+2. Type cd.., cd.., until you see C:\>
+3. Type cd Users
+4. Type cd MongoDB
+5. Type cd bin
+6. Type mongod
+(wait for it to run/generate loads of text)
+7. Open a new cmd terminal as an administrator, keep other one open (or, if using a GUI, run this now)
+8. do the same steps as above - navigate to bin folder
+9. then type mongo.exe
+
+should be working now.
+
+
+> use employee
+switched to db employee
+> db.createCollection("EmployeePay")
+{ "ok" : 1 }
+> show collections
+EmployeePay
+> db.EmployeePay.drop()
+true
+> show collections
+> db.createCollection("user")
+{ "ok" : 1 }
+> db.users.insertOne(
+... {
+... name: "sue",
+... age: 19,
+... status: "P"
+... }
+... )
+{
+        "acknowledged" : true,
+        "insertedId" : ObjectId("5c6080b84b0130a6f33ccb7d")
+}
+> db.collection.insertMany(
+... [
+... {name: "bob", age: 42, status: "A",},
+... {name: "ahn", age: 22, status: "A",},
+... {name: "xi", age: 34, status: "D",}
+... ]
+... )
+{
+        "acknowledged" : true,
+        "insertedIds" : [
+                ObjectId("5c6081324b0130a6f33ccb7e"),
+                ObjectId("5c6081324b0130a6f33ccb7f"),
+                ObjectId("5c6081324b0130a6f33ccb80")
+        ]
+}
+> db.collection.insert(
+... [
+... {name: "johm", age: 29, status: "P",},
+... {name: "mike", age: 25, status: "D",}
+... ]
+... )
+BulkWriteResult({
+        "writeErrors" : [ ],
+        "writeConcernErrors" : [ ],
+        "nInserted" : 2,
+        "nUpserted" : 0,
+        "nMatched" : 0,
+        "nModified" : 0,
+        "nRemoved" : 0,
+        "upserted" : [ ]
+})
+> db.users.deleteOne( :status: "D"})
+2019-02-10T14:56:55.112-0500 E QUERY    [js] SyntaxError: expected expression, got ':' @(shell):1:20
+> db.users.deleteOne( {status: "D" } )
+{ "acknowledged" : true, "deletedCount" : 0 }
+> show collections
+collection
+user
+users
+> show user
+2019-02-10T14:59:16.882-0500 E QUERY    [js] Error: don't know how to show [user] :
+shellHelper.show@src/mongo/shell/utils.js:1055:11
+shellHelper@src/mongo/shell/utils.js:766:15
+@(shellhelp2):1:1
+> db.users.insert(
+... [
+... {name: "john", age: 29, status: "P",},
+... {name: "mike", age: 25, status: "D",}
+... ]
+... )
+BulkWriteResult({
+        "writeErrors" : [ ],
+        "writeConcernErrors" : [ ],
+        "nInserted" : 2,
+        "nUpserted" : 0,
+        "nMatched" : 0,
+        "nModified" : 0,
+        "nRemoved" : 0,
+        "upserted" : [ ]
+})
+> db.users.deleteOne( { status: "D" } )
+{ "acknowledged" : true, "deletedCount" : 1 }
+> db.users.remove( { status: "D" }, 1)
+WriteResult({ "nRemoved" : 0 })
+> db.users.deleteMany({status:"A"})
+{ "acknowledged" : true, "deletedCount" : 0 }
+> db.users.remove({status: "P"})
+WriteResult({ "nRemoved" : 2 })
+> db.users.insertMany(
+... [
+... {name: "sue", age:19, status:"P",},
+... {name: "bob", age:42, status: "A",},
+... {name: "ahn", age:22, status: "A",},
+... {name: "xi", age: 34, status: "D",},
+... {name: "john", age:29, status: "P"},
+... {name: "mike", age:25, status: "D",}
+... ]
+... )
+{
+        "acknowledged" : true,
+        "insertedIds" : [
+                ObjectId("5c60848c4b0130a6f33ccb85"),
+                ObjectId("5c60848c4b0130a6f33ccb86"),
+                ObjectId("5c60848c4b0130a6f33ccb87"),
+                ObjectId("5c60848c4b0130a6f33ccb88"),
+                ObjectId("5c60848c4b0130a6f33ccb89"),
+                ObjectId("5c60848c4b0130a6f33ccb8a")
+        ]
+}
+> db.users.find()
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb85"), "name" : "sue", "age" : 19, "status" : "P" }
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb86"), "name" : "bob", "age" : 42, "status" : "A" }
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb87"), "name" : "ahn", "age" : 22, "status" : "A" }
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb88"), "name" : "xi", "age" : 34, "status" : "D" }
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb89"), "name" : "john", "age" : 29, "status" : "P" }
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb8a"), "name" : "mike", "age" : 25, "status" : "D" }
+> db.users.find( { "A" } )
+2019-02-10T15:24:21.678-0500 E QUERY    [js] SyntaxError: missing : after property id @(shell):1:21
+> db.users.find( {status: "A"} )
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb86"), "name" : "bob", "age" : 42, "status" : "A" }
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb87"), "name" : "ahn", "age" : 22, "status" : "A" }
+> db.users.find( {status: {$in:["P", "D"]}})
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb85"), "name" : "sue", "age" : 19, "status" : "P" }
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb88"), "name" : "xi", "age" : 34, "status" : "D" }
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb89"), "name" : "john", "age" : 29, "status" : "P" }
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb8a"), "name" : "mike", "age" : 25, "status" : "D" }
+> db.users.find({$or: [{status:"A"}, {age: {$lt: 30} } ]})
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb85"), "name" : "sue", "age" : 19, "status" : "P" }
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb86"), "name" : "bob", "age" : 42, "status" : "A" }
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb87"), "name" : "ahn", "age" : 22, "status" : "A" }
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb89"), "name" : "john", "age" : 29, "status" : "P" }
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb8a"), "name" : "mike", "age" : 25, "status" : "D" }
+> db.users.find(
+... [
+... status: "A",
+... $or: [ {age: {$lt:30} }. {type: 1 } ]
+... }
+2019-02-10T15:32:53.387-0500 E QUERY    [js] SyntaxError: missing ] after element list @(shell):3:6
+> db.users.find(
+... ... [
+... ... status: "A",
+... ... $or: [ {age: {$lt:30} }. {type: 1 } ]
+... }
+2019-02-10T15:33:39.428-0500 E QUERY    [js] SyntaxError: missing ] after element list @(shell):3:6
+> db.users.find(
+... {
+... status: "A",
+... $or: [ {age: {$lt:30}}, {type:1}]
+... }
+... )
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb87"), "name" : "ahn", "age" : 22, "status" : "A" }
+> db.users.find({name: {$not: /^b.*/}})
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb85"), "name" : "sue", "age" : 19, "status" : "P" }
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb87"), "name" : "ahn", "age" : 22, "status" : "A" }
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb88"), "name" : "xi", "age" : 34, "status" : "D" }
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb89"), "name" : "john", "age" : 29, "status" : "P" }
+{ "_id" : ObjectId("5c60848c4b0130a6f33ccb8a"), "name" : "mike", "age" : 25, "status" : "D" }
+> db.users.find({}).limit(2).pretty()
+{
+        "_id" : ObjectId("5c60848c4b0130a6f33ccb85"),
+        "name" : "sue",
+        "age" : 19,
+        "status" : "P"
+}
+{
+        "_id" : ObjectId("5c60848c4b0130a6f33ccb86"),
+        "name" : "bob",
+        "age" : 42,
+        "status" : "A"
+}
+> db.users.find().sort({"name":1}).pretty()
+{
+        "_id" : ObjectId("5c60848c4b0130a6f33ccb87"),
+        "name" : "ahn",
+        "age" : 22,
+        "status" : "A"
+}
+{
+        "_id" : ObjectId("5c60848c4b0130a6f33ccb86"),
+        "name" : "bob",
+        "age" : 42,
+        "status" : "A"
+}
+{
+        "_id" : ObjectId("5c60848c4b0130a6f33ccb89"),
+        "name" : "john",
+        "age" : 29,
+        "status" : "P"
+}
+{
+        "_id" : ObjectId("5c60848c4b0130a6f33ccb8a"),
+        "name" : "mike",
+        "age" : 25,
+        "status" : "D"
+}
+{
+        "_id" : ObjectId("5c60848c4b0130a6f33ccb85"),
+        "name" : "sue",
+        "age" : 19,
+        "status" : "P"
+}
+{
+        "_id" : ObjectId("5c60848c4b0130a6f33ccb88"),
+        "name" : "xi",
+        "age" : 34,
+        "status" : "D"
+}
+> db.users.update({"name":"xi"},{$set:{"age":30})
+... db.users.finding()
+...
+... ^C
+
+> use Employee
+switched to db Employee
+> db.createCollection("orders")
+{
+        "ok" : 0,
+        "errmsg" : "db already exists with different case already have: [employee] trying to create [Employee]",
+        "code" : 13297,
+        "codeName" : "DatabaseDifferCase"
+}
+> use employee
+switched to db employee
+> db.createCollection("orders")
+{ "ok" : 1 }
