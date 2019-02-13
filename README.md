@@ -21,3 +21,5 @@ This repository is a collection of 'cheat sheets' and code snippets from i590 'a
 - placeholder
 ## (week 6)
 - placeholder
+## SQL
+- placeholder
