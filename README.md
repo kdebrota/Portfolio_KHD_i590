@@ -29,6 +29,8 @@ How to search for, filter by, and manipulate strings of text, symbols, and digit
 - Anothoer good walkthrough (R): https://bookdown.org/rdpeng/exdata/exploratory-data-analysis-checklist.html
 - Standard deviation, variance, IQR, mean, median, mode
 - Statistics and measures of variability, location: https://www.oreilly.com/library/view/practical-statistics-for/9781491952955/ch01.html
+## Data Visualization (week 7)
+- Walkthrough for practice: https://r4ds.had.co.nz/data-visualisation.html
 ## SQL Information
 - This section contains some information, cheat sheets, code, and other files related to the course SQL and NoSQL.
 - Relational algebra for query structuring
