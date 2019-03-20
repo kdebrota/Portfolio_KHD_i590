@@ -68,4 +68,10 @@ cbind(head(ranking, 10),
       head(ranking2, 10))
 #this SHOULD give a table with colunms 'state name', 'county name', 'ozone', where int the ozone column it's the mean value for that county, and ranked by highest to lowest.
 ```
+Quiz practice and problem solving:
+```{r}
+library(nycflights13)
+head(flights)
+mean(flights$dep_delay, na.rm=TRUE)
+```
 
