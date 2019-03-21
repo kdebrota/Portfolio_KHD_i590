@@ -1,0 +1,135 @@
+---
+title: "Untitled"
+author: "Kathleen DeBrota"
+date: "March 5, 2019"
+output: pdf_document
+---
+
+```{r}
+#set the working directory: 
+setwd("C:/Users/kdebr/OneDrive/Applied Data Science Class") 
+
+#import the csv file:
+epa<- read.table("US EPA data 2017.csv", header=TRUE, sep = ",")
+
+#check the datatypes:
+#str(epa)
+
+glimpse(epa)
+
+```
+Question 1: how many columns have missing values?
+
+```{r}
+#replace empty datapoints with NA
+#is.na(epa)
+
+library(dplyr)
+#Note: the method below yielded '7', but this is not an answer choice...there are at least 8...
+#epa %>% select_if(function(x) any(is.na(x))) %>%
+#  summarize_each(funs(sum(is.na(.))))
+
+#epa %>% select_if(function(epa)any(is.na(epa))) %>%
+ # summarize(funs(sum(is.na(.))))
+
+#second attempt
+colSums(is.na(epa))
+```
+Once again, this method shows there are 7 columns that contain >0 missing values. Now attempting to import the data as an excel file instead
+```{r}
+library(readxl)
+epa2 <- read_excel("US EPA data 2017.xlsx")
+head(epa2)
+```
+Now trying to find NA's:
+```{r}
+colSums(is.na(epa2))
+```
+Skipping to question 18:
+```{r}
+iris <- iris
+#iris
+iris %>% filter(Petal.Length > 4.5) %>% group_by(Species) %>% summarize(mean_sepallength=mean(Sepal.Length), sd_sepalwidth=sd(Sepal.Width), max_petallength=max(Petal.Length))
+```
+Question 19: using diamonds dataset...
+```{r}
+library(ggplot2)
+diamonds <- diamonds
+sorted <- table(diamonds$color)
+sorted
+```
+Question 20:
+```{r}
+library(nycflights13)
+flights <- flights
+#head(flights)
+flights %>% filter(month == 1 | month == 6)
+
+#and to check answer...
+flights %>% filter(month==1)
+flights %>% filter(month==6)
+#yep, answer is correct.
+```
+Question 17:find 25 percentile of the eruptions column
+```{r}
+faithful <- faithful
+quantile(faithful$eruptions, 0.25)
+```
+Question 12:
+```{r}
+library(tidyverse)
+head(who)
+```
+Question 13:
+```{r}
+library(ggplot2)
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ, y=hwy), size=3, shape=24, color="black", fill = 'red')
+```
+
+Question 7:
+```{r}
+mtcars <-mtcars
+#head(mtcars)
+library(matrixStats)
+mtcars %>% summarize(
+  mean_mpg=mean(mtcars$mpg), 
+  trimmed_mpg=mean(mtcars$mpg, trim=0.1),
+  weighted_mean=weighted.mean(mtcars$mpg, mtcars$wt),
+  median_mpg=median(mtcars$mpg)
+)
+
+weighted.median(mtcars$mpg, mtcars$wt)
+
+#  sd_mpg=sd(mtcars$mpg), 
+ # IQR_mpg=IQR(mtcars$mpg), 
+  #mad_mpg=mad(mtcars$mpg)
+  #)
+```
+Question 4:
+```{r}
+mtcars %>% summarize(sd_mpg=sd(mtcars$mpg), IQR_mpg=IQR(mtcars$mpg), mad_mpg=mad(mtcars$mpg))
+mtcars
+```
+Question 2:
+```{r}
+
+
+#mtcars$cyl <- NULL
+#mtcars$gear <-NULL
+#mtcars$carb <- NULL
+#mtcars$am <- NULL
+#mtcars$vs <- NULL
+head(mtcars)
+
+library(corrplot)
+
+matrix <- cor(mtcars)
+matrix
+
+
+```
+mpg-wt = -.8676
+disp-wt = 0.8879
+mpg-disp = -0.8475
+disp-hp = 0.7909

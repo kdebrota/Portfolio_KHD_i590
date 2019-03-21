@@ -1,0 +1,370 @@
+---
+title: "diagnostic plots for lin-reg-analysis"
+author: "Kathleen DeBrota"
+date: "March 20, 2019"
+output: pdf_document
+---
+
+This practice is from: 
+https://data.library.virginia.edu/diagnostic-plots/
+
+Working through diagnosing whether or not a given regression model works well for the data being analyzed by looking at residuals. 
+
+```{r}
+data(women) #load women dataset
+fit=lm(weight~height, women) #run regression analysis
+#plot(fit)
+
+#showing all 4 plots at once:
+par(mfrow=c(2,2)) #grid of 2x2 graphs
+plot(fit)
+par(mfrow=c(1,1)) #this shows 1x1 grid
+```
+Note the numbers next to some values are extreme values based on each criterion.
+First plot is residuals vs fitted. This shows if the residuals show a non-linear pattern. If, for example, there is a non-linear relationship in the data you are actually looking at (between predictor variable and outcome variable), it's possible that the non-linear pattern shows up here in this plot. If that happens, it means you did not capture that nonlinear relationship in your model. Equally spread out residuals around a horiz line shows there is no pattern in the residuals and the data you're looking at doesn't contain a NLRelationship.
+
+Second plot shows if the residuals are normally distributed. They should follow a straight line in this plot.
+
+Third plot (scale-location) shows if residuals are spread equally along ranges of predictors. this basically means you are checking if variances are equal or homogeneous. (Homoscedasticity) Here we do NOT want to see a pattern in the points- we want them to be horizontal line w/randomly spread points on either side.
+
+Fourth plot, resid vs leverage, helps find influential cases, i.e. outliers, if any exist. Some outliers have extreme values but they may not influence the regression line. The results therefore might not change much if we either include or remove them. Some other outliers can be super influential though and change the analysis completely if they are included or removed. They don't play well with others. In this plot patterns aren't relevant. We want to see if there are outlying values in top right or lower right corner. those spots are where certain cases can be influential to the analysis. If the points are outside of the 'Cook's distance', aka have high Cook's distance scores, then those points are influential to the regression results. The model will be altered if we exclude those cases.
+
+
+
+Looking at these plots helps you determine if you should be seeing a linear relationship between predictors and outcome. You might want to include a quadratic term. or a log transformation. Is there some variable you are not including in the analysis? Was the data biased systematically when collected?
+
+
+This next practice is from http://daviddalpiaz.github.io/appliedstats/model-diagnostics.html
+
+It's not enough to just see how close the model fits the data points. Sometimes you need to ask, "am I building the right model? was my data biased? Am I forgetting a predictor or set of predictors? Are there other interactions, polynomial terms, etc?"
+
+If we only care about predicting the outcome, we sometimes do not care about these things. If we want to learn whether or not a certain variable or predictor is important, then we do care about this because we want to get the best model possible. 
+
+Assumptions of linear regression:
+L = linearity (response can be written as a linear combo of predictors)
+I = independence (errors are independent)
+N = normality (distribution of errors is normal)
+E = equal variance (error variance is the same at any set of predictor values)
+
+If these assumptions are NOT met, we cannot get valid results from t-tests. 
+
+CHECKING ASSUMPTIONS:
+Use the following practice data set...
+
+```{r}
+#MODEL 1
+sim_1 = function(sample_size = 500) {
+  x = runif(n = sample_size) * 5
+  y = 3 + 5 * x + rnorm(n = sample_size, mean = 0, sd = 1)
+  data.frame(x, y)
+}
+
+#MODEL 2
+sim_2 = function(sample_size = 500) {
+  x = runif(n = sample_size) * 5
+  y = 3 + 5 * x + rnorm(n = sample_size, mean = 0, sd = x)
+  data.frame(x, y)
+}
+#MODEL 3
+sim_3 = function(sample_size = 500) {
+  x = runif(n = sample_size) * 5
+  y = 3 + 5 * x ^ 2 + rnorm(n = sample_size, mean = 0, sd = 5)
+  data.frame(x, y)
+}
+
+```
+Fitted vs residuals plot
+- we do not want to see any patterns. 
+Model 1 should be a good example.
+```{r}
+set.seed(42)
+sim_data_1 = sim_1()
+head(sim_data_1) #print the first model head
+
+#Fit the model and fitted line to a scatterplot
+plot(y~x, data=sim_data_1, col="grey", pch=20, main="Data from model 1")
+fit_1 = lm(y~x, data=sim_data_1) #Use the linear reg model to fit the line to data
+abline(fit_1, col="darkorange", lwd=3)#print orange line of fit model
+```
+Now we want to see the RESIDUALS..
+```{r}
+plot(fitted(fit_1), resid(fit_1), col="grey", pch=20, xlab="Fitted", ylab="residuals", main="Data from model 1 residuals")
+abline(h=0, col="darkorange", lwd=2) #add horiz line at 0 to compare resids with.
+```
+We see here that there is absolutely no pattern in the residuals so this linear regression model is a good fit for this data. At any fitted value the mean of residuals should be about 0. So no more above than below the line. 
+
+Now using model 2 which has non-constant variance. Here, variance is larger for higher values of predictor variable x.
+```{r}
+set.seed(42) #seed a value into the model
+sim_data_2 = sim_2() #generate simulated data
+fit_2 = lm(y ~ x, data = sim_data_2) #fit the linear reg model to the data
+plot(y ~ x, data = sim_data_2, col = "grey", pch = 20, 
+     main = "Data from Model 2")
+abline(fit_2, col = "darkorange", lwd = 3) #plot the line
+```
+Now plot the residuals to see if there's a pattern...
+```{r}
+plot(fitted(fit_2), resid(fit_2), col = "grey", pch = 20,
+     xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
+abline(h = 0, col = "darkorange", lwd = 2)
+
+```
+We can see that for any fitted value the residuals are centered at 0, which is good. This means the linearity assumption holds true! However, for larger values of x we see larger residuals which is BAD. Constant variance assumption is violated here and this is not a good model of the data.  
+
+Now use model 3 which is an example of a data set which will not meet the linearity assumption. In this model, Y is not a linear combination of the predictors - that is, the relationship between variables and the response variable is not linear, and does not vary linearly with changes in predictor(s). 
+
+```{r}
+set.seed(42)
+sim_data_3 = sim_3() #set the seeded data equal to the model
+fit_3 = lm(y ~ x, data = sim_data_3) #fit the model to the data and plot
+plot(y ~ x, data = sim_data_3, col = "grey", pch = 20,
+     main = "Data from Model 3")
+abline(fit_3, col = "darkorange", lwd = 3) #plot the fitted line
+```
+We can see there is a pattern in the data which does not fit the line. The trend is nonlinear. Plotting the residuals...
+```{r}
+plot(fitted(fit_3), resid(fit_3), col = "grey", pch = 20,
+     xlab = "Fitted", ylab = "Residuals", main = "Data from Model 3")
+abline(h = 0, col = "darkorange", lwd = 2)
+```
+We can see the obvious pattern here in the residuals which is not good. The residuals are not centered around 0. The model underestimates when the values of predictors are low and high, and overestimates when the predictor values are moderate. The spread of residuals around any fitted value is about the same so the constant variance assumption is met, but linearity assumption is not. We are trying to fit a line to a curve.
+
+Constant variance = homoscedasticity. Non-constant variance is heteroscedasticity. 
+
+Many tests exist for testing constant variance: one is the Breusch-Pagan test. 
+Have to install package lmtest to run this. 
+```{r}
+install.packages("lmtest") #install package
+library(lmtest)
+bptest(fit_1) #run the test on model 1
+```
+Model 1 shows a large p value, so we do not reject the null hypothesis which is that the errors have constant variance around the true model (homoscedasticity)
+
+```{r}
+bptest(fit_2)
+
+```
+This second model has a very small p-value, so we reject the null and say that there is heteroscedasticity in this model and the errors have non-constant variance around the true model. this is clearly visible in the residual plot. 
+
+```{r}
+bptest(fit_3)
+```
+Another large p value = homoscedasticity holds here too.
+
+HISTOGRAMS
+
+Histograms can tell us if the residuals are normally distributed just by looking. 
+```{r}
+par(mfrow = c(1, 3)) #show graphs in a 1x3 grid
+hist(resid(fit_1), #Make histogram of residuals for model 1
+     xlab   = "Residuals",
+     main   = "Histogram of Residuals, fit_1",
+     col    = "darkorange",
+     border = "dodgerblue",
+     breaks = 20)
+hist(resid(fit_2), #make histogram for model 2 resid
+     xlab   = "Residuals",
+     main   = "Histogram of Residuals, fit_2",
+     col    = "darkorange",
+     border = "dodgerblue",
+     breaks = 20)
+hist(resid(fit_3), #histogram for model 3 resid
+     xlab   = "Residuals",
+     main   = "Histogram of Residuals, fit_3",
+     col    = "darkorange",
+     border = "dodgerblue",
+     breaks = 20)
+```
+First one is normal. Third is definitely not normal. Second is unclear. too sharp of a peak...we will use a Q-Q plot and Shapiro-Wilk test to see if errors are normally distributed. 
+
+Q-Q plots are another visual method for this. 
+```{r}
+qqnorm(resid(fit_1), main='normal Q-Q plot, fit_1', col='lightgreen')
+qqline(resid(fit_1), col='dodgerblue', lwd=2)
+```
+If the residuals follow a straight line then the distribution is normal. If not, they are not normal. This is an art, not a science - 'close to the line' is an arbitrary though educated guess. 
+For example, check data from an exponential distribution which we expect to make a bad qq plot:
+```{r}
+#show the entire function for qq plot copied from document
+
+qq_plot = function(e) {
+
+  n = length(e)
+  normal_quantiles = qnorm(((1:n - 0.5) / n))
+  # normal_quantiles = qnorm(((1:n) / (n + 1)))
+
+  # plot theoretical verus observed quantiles
+  plot(normal_quantiles, sort(e),
+       xlab = c("Theoretical Quantiles"),
+       ylab = c("Sample Quantiles"),
+       col = "darkgrey")
+  title("Normal Q-Q Plot")
+
+  # calculate line through the first and third quartiles
+  slope     = (quantile(e, 0.75) - quantile(e, 0.25)) / (qnorm(0.75) - qnorm(0.25))
+  intercept = quantile(e, 0.25) - slope * qnorm(0.25)
+
+  # add to existing plot
+  abline(intercept, slope, lty = 2, lwd = 2, col = "dodgerblue") #choose how it plots
+}
+
+par(mfrow = c(1, 3)) #make a 1x3 grid
+set.seed(420) 
+qq_plot(rexp(10)) #check different sample sizes from 10 to 100 with exponential fcn
+qq_plot(rexp(25))
+qq_plot(rexp(100))
+```
+We can tell that these are not good plots because the residuals do not fit the line. This makes sense given that it's from an exponential, nonlinear distribution and we are assuming the residuals of some distribution follow an exponential curve.
+
+Shapiro-Wilk test:
+This is a good formal test to see if a distribution is normal. 
+```{r}
+set.seed(42)
+shapiro.test(rnorm(25))
+```
+Null hypothesis assumes the data is normal. So, a small p-value says there is a small chance that the data came from a normal distribution. A large p value as here says it is likely to be normal, which here we know is the case. 
+
+CHECKING UNUSUAL OBSERVATIONS (outliers)
+
+Sometimes a few points can massively impact a regression. 
+```{r}
+#Below plots copied from the resource. 
+
+par(mfrow = c(1, 3))
+set.seed(42)
+ex_data  = data.frame(x = 1:10,
+                      y = 10:1 + rnorm(n = 10))
+ex_model = lm(y ~ x, data = ex_data)
+
+# low leverage, large residual, small influence
+point_1 = c(5.4, 11)
+ex_data_1 = rbind(ex_data, point_1)
+model_1 = lm(y ~ x, data = ex_data_1)
+plot(y ~ x, data = ex_data_1, cex = 2, pch = 20, col = "grey",
+     main = "Low Leverage, Large Residual, Small Influence")
+points(x = point_1[1], y = point_1[2], pch = 1, cex = 4, col = "black", lwd = 2)
+abline(ex_model, col = "dodgerblue", lwd = 2)
+abline(model_1, lty = 2, col = "darkorange", lwd = 2)
+legend("bottomleft", c("Original Data", "Added Point"),
+       lty = c(1, 2), col = c("dodgerblue", "darkorange"))
+
+# high leverage, small residual, small influence
+point_2 = c(18, -5.7)
+ex_data_2 = rbind(ex_data, point_2)
+model_2 = lm(y ~ x, data = ex_data_2)
+plot(y ~ x, data = ex_data_2, cex = 2, pch = 20, col = "grey",
+     main = "High Leverage, Small Residual, Small Influence")
+points(x = point_2[1], y = point_2[2], pch = 1, cex = 4, col = "black", lwd = 2)
+abline(ex_model, col = "dodgerblue", lwd = 2)
+abline(model_2, lty = 2, col = "darkorange", lwd = 2)
+legend("bottomleft", c("Original Data", "Added Point"),
+       lty = c(1, 2), col = c("dodgerblue", "darkorange"))
+
+# high leverage, large residual, large influence
+point_3 = c(14, 5.1)
+
+ex_data_3 = rbind(ex_data, point_3)
+model_3 = lm(y ~ x, data = ex_data_3)
+plot(y ~ x, data = ex_data_3, cex = 2, pch = 20, col = "grey", ylim = c(-3, 12),
+     main = "High Leverage, Large Residual, Large Influence")
+points(x = point_3[1], y = point_3[2], pch = 1, cex = 4, col = "black", lwd = 2)
+abline(ex_model, col = "dodgerblue", lwd = 2)
+abline(model_3, lty = 2, col = "darkorange", lwd = 2)
+legend("bottomleft", c("Original Data", "Added Point"),
+       lty = c(1, 2), col = c("dodgerblue", "darkorange"))
+```
+Solid blue line is the regression fit to the 10 points. The orange line is the result of adding one extra point. This is the circled point.
+
+Check the regression for orig 10 points:
+```{r}
+coef(ex_model)[2]
+```
+This gives the slope of the regression line
+Then if you add a point in the first plot that has a small impact on the slope, you see...
+```{r}
+coef(model_1)[2]
+```
+We see the slope only changed very slightly from -0.969 to -0.974.
+
+In the third plot we see a point that has a huge impact on the slope:
+```{r}
+coef(model_3)[2]
+```
+You can see the slope went from about 0.9 to 0.5. This is a big change so we can see the added point is very influential. It has high 'leverage'
+
+A data point with high leverage = data that 'could' have a large influence when fitting the model. Leverages are calculated using matrix algebra to determine which points have which leverages. To do this in R....
+```{r}
+lev_ex = data.frame(
+  x1 = c(0, 11, 11, 7, 4, 10, 5, 8),
+  x2 = c(1, 5, 4, 3, 1, 4, 4, 2),
+  y  = c(11, 15, 13, 14, 0, 19, 16, 8)) #create multivariate data.
+
+plot(x2 ~ x1, data = lev_ex, cex = 2) #plot the x values, not the y values. 
+points(7, 3, pch = 20, col = "red", cex = 2) #plot point (7,3) which is the mean of x1 and x2 respectively. color it red.
+
+```
+Then the easiest way to get the leverages is:
+```{r}
+lev_fit = lm(y~ ., data=lev_ex)
+hatvalues(lev_fit) # this function returns the leverages.
+
+#Leverages are calculated by creating an X matrix, then calculating H, then extracting its diagonal elements. H is the 'hat matrix' which is used to project onto the subspace spanned by the columns of X. Simply known as a projection matrix. It is a matrix which takes orig y values and adds a 'hat' onto them. (carat). The diagomal elements of the hat mtrix are the leverages. 
+```
+We've 'used' the y values to fit the regression but R ignores them when calculating the leverages because these only depend on the x values. Now let's find the slope of the line fitting these leverage values...
+```{r}
+coef(lev_fit)
+```
+Now see what happens to these coefficients when we modify the y value with the highest leverage.
+```{r}
+lev_ex[which.max(hatvalues(lev_fit)),]
+```
+This is the point with the highest leverage. Now let's change its y value to 20, by making a copy of the data but changing this point, and see what happens to the regression. 
+
+```{r}
+lev_ex_1 = lev_ex #make copy of data
+lev_ex_1$y[1] = 20 #change y value to 20
+lm(y ~ ., data = lev_ex_1) #rerun the regression on this new data
+
+```
+Comparing these slopes to the original ones, which were 3.7, -0.7, and 4.4 respectively we can see the huge changes that occurred from this one change in one data point! None of the leverages will have changed because we haven't modified any of the x values. Similarly, modifying the y value of the point w/the lowest leverage does not affect these coefficients as much:
+```{r}
+which.min(hatvalues(lev_fit)) #find lowest leverage point
+lev_ex[which.min(hatvalues(lev_fit)),] #print coordinates of lowest leverage pt
+lev_ex_2 = lev_ex #create second copy of data
+lev_ex_2$y[4] = 30 #change value of the y value of this point
+lm(y ~ ., data = lev_ex_2) #rerun regression
+```
+Now there is a smaller change in the coefficients. 
+
+Generally when checking if a leverage is large, you ask 'is the leverage greater than 2x the average leverage of the data?"
+```{r}
+#example using model 1:
+hatvalues(model_1) > 2*mean(hatvalues(model_1))
+```
+Here we see that for model 1, none of the points has a large leverage. 
+Try for model 2:
+```{r}
+hatvalues(model_2) > 2*mean(hatvalues(model_2))
+```
+Data point 11 has a large leverage and changes in this point's y value will affect the overall slope of the linear regression line. 
+
+
+OUTLIERS
+
+
+Outliers don't fit the model well. They may or may not have a large impact on the model. Quantify an outlier by finding points with large residuals. Use a so-called standardized residual to find 'large' residuals.
+Using the same 3 models, we want to find the standardized residuals.
+```{r}
+#resid(model_1) #this gives the residuals.
+#rstandard(model_1) #this gives standardized residuals.
+rstandard(model_1) [abs(rstandard(model_1)) >2] #this shows only the standard residuals whose absolute value is greater than 2.
+```
+We can see there is only one data point whose stdresid is > 2.
+Having a large standard residual doesn't mean the point necessarily has a large leverage, but it just means it does not fit the model well. 
+
+INFLUENTIAL points have BOTH a large leverage AND a large residual. Common measure of influence is the COOK'S DISTANCE. It's a function of both leverage and standardized residuals. It's considered large if the distance is greater than 4/n where n is the number of observations.. 
+```{r}
+#calculate cook's distance:
+cooks.distance(model_1)[11] >4 / length(cooks.distance(model_1)) #is cook's distance for point 11 larger than 4/n where n = number of points in model_1?
+```
+The Cook's distance here is not 'large'. therefore this point is NOT influential. 
