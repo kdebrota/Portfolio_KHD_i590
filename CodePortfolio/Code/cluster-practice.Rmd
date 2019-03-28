@@ -7,14 +7,15 @@ output: html_document
 library(tidyverse)  # data manipulation
 library(cluster)    # clustering algorithms
 library(factoextra) # clustering algorithms & visualization
+
 ```
 ## Distance
 
 ```{r}
-vector1 <- c(5,2,1,4)
-vector2 <- c(5,5,4,2)
+vector1 <- c(3,4,7,8)
+vector2 <- c(5,7,7,6)
 matrix12 <- matrix(c(vector1,vector2), byrow=T,nrow=2)
-dist(matrix12, method="manhattan")
+#dist(matrix12, method="manhattan")
 dist(matrix12, method="euclidean")
 ```
 
@@ -23,7 +24,8 @@ Adapted from UC Business Analytics R Programing Guide
 Dataset - 1973
 
 ```{r USAarests}
-df <- USArrests
+#df <- USArrests
+df <- mtcars
 ```
 
 Remove missing values
