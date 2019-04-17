@@ -1,0 +1,14 @@
+---
+title: "regression"
+author: "Kathleen DeBrota"
+date: "March 27, 2019"
+output: pdf_document
+---
+
+Regression model
+```{r}
+fitmodel<-lm(dist~speed, data=cars)
+qqnorm(resid(fitmodel), main='normal Q-Q plot, fit_1', col='darkgreen')
+qqline(resid(fitmodel), col='dodgerblue', lwd=2)
+shapiro.test(cars$speed)
+```
