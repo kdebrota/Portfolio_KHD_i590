@@ -1,0 +1,29 @@
+---
+title: "Importing"
+author: "Kathleen DeBrota"
+date: "April 16, 2019"
+output: html_document
+---
+
+# Importing data to R
+Basic import commands are very simple. Depends on the file type.
+First, need to set the working directory:
+```{r}
+#must use quotes, and reverse backslashes
+setwd("C:/Users/kdebr/Documents/GitHub/Portfolio_KHD_i590/CodePortfolio/Data")
+```
+Next ensure proper library is accessible. If you're importing from excel:
+```{r}
+library(readxl)
+
+```
+Otherwise:
+```{r}
+gapminder<-read.csv(file='C:/Users/kdebr/Documents/GitHub/Portfolio_KHD_i590/CodePortfolio/Data/gapminder.csv')
+
+#Check for proper import:
+head(gapminder)
+```
+Notes: reverse backslashes in setwd, but not in read.csv. Specify file='___'. Must use quotes, must include C:/ at the beginning of the path.  
+
+Once data is successfully imported, you can proceed with description/analysis.

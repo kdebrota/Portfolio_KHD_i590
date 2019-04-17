@@ -1,0 +1,56 @@
+---
+title: "For quiz 6 applied datasci"
+author: "Kathleen DeBrota"
+date: "February 13, 2019"
+output: pdf_document
+---
+# Basic stats, dplyr commands, data description
+
+Calculating the trimmed mean: drop a fixed number (p) of sorted values at each end, and then take an average of the remaining values. 
+This metric eliminates the influence of the most extreme values at either end. 
+```{r}
+library(readr)
+library(dplyr)
+setwd("C:/Users/kdebr/OneDrive/Applied Data Science Class")
+#Note: this is how you set the current working directory. MUST use forward slashes!
+incomedata <- read_csv("income.csv")
+#str(incomedata)
+mean(incomedata$'M_weekly', na.rm=TRUE)
+median(incomedata$'M_weekly', na.rm=TRUE)
+
+#calculating the trimmed mean: ordering the data
+mean(incomedata[['M_weekly']], trim=0.1, na.rm=TRUE)
+
+```
+Calculating standard deviation, IQR, and median absolute standard deviation (MAD) for female workers. 
+```{r}
+#Interquartile range:
+IQR(incomedata$'F_workers', na.rm=TRUE)
+#standard deviation:
+sd(incomedata$'F_workers', na.rm=TRUE)
+#median absolute standard deviation from the median (MAD):
+# this metric is a robust estimate of variability. It's not influenced by extreme values, and it is possible to also compute a trimmed standard deviation analogous to the trimmed mean. R has a built infunction for the MAD:
+mad(incomedata$'F_workers', na.rm=TRUE)
+
+```
+### Using dplyr to mutate and make new columns
+#### using 'glimpse'
+Adding a new column named 'diff', the difference between male and female weekly income.
+```{r}
+incomedata <- mutate(incomedata, diff =incomedata$'M_weekly' - incomedata$'F_weekly')
+#Peek at the dataset to see if the addition worked
+incomedata %>% glimpse()
+```
+Calculating the standard deviation of diff column.
+```{r}
+sd_diff <- sd(incomedata$'diff', na.rm=TRUE)
+round(sd_diff)
+```
+importing optdigits.tra; first turned into a .csv file in Excel and delimited comma-separated columns.
+```{r}
+optdigits <- read_csv("optdigits.csv")
+shape(optdigits)
+nrow(optdigits)
+ncol(optdigits)
+```
+

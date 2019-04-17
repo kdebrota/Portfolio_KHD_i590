@@ -4,6 +4,8 @@ author: "Kathleen DeBrota"
 date: "March 5, 2019"
 output: pdf_document
 ---
+#Midterm exam questions and answers.
+## contains data description, wrangling, dplyr/tidying, importing, finding missing values, etc
 
 ```{r}
 #set the working directory: 

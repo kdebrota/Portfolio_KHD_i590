@@ -1,0 +1,122 @@
+---
+title: "Data Wrangling Cheat Sheet"
+author: "Kathleen DeBrota"
+date: "April 16, 2019"
+output: html_document
+---
+
+### Import practice dataset
+```{r}
+library(readr)
+#Set working directory:
+setwd("C:/Users/kdebr/Documents/GitHub/Portfolio_KHD_i590/CodePortfolio/Data")
+ozone <- read_csv("USEPAdata 017.csv", col_types ="ccccinnccccccncnncccccc")
+```
+Notes: must set working directory to the folder containing the data file. 
+Must reverse all the backslashes to forward slashes in the path name.
+Must put path name in quotes. 
+
+View the first few rows to ensure import worked properly
+```{r}
+head(ozone)
+```
+Data description:
+Important for understanding the size, shape, content, and structure of data.
+```{r}
+nrow(ozone) #gives number of rows
+ncol(ozone) #number of columns
+dim(ozone) #gives dimension of entire dataframe.
+str(ozone) #tells you the class of each column, to be sure it's correctly specified
+
+#view top and bottom of data:
+head(ozone)
+tail(ozone)
+
+#alternatively,  you can peek at only a few columns:
+head(ozone[, c(6:7, 10)])
+```
+### Wrangling with dplyr
+
+dplyr is super useful for grouping, filtering, and subsetting according to certain parameters. Note - you can rename new dataframes from the results of the pipeline, or not - and if you don't, it will auto-print to the console.
+```{r}
+library(dplyr) #import library
+
+highlat<- ozone %>% filter(Latitude >= 30)
+head(highlat)
+
+#Example: find all rows in year 2017 in state code 45 in which the observation count was higher than 1000
+state45<- ozone %>% filter(Year==2017,`State Code`==45, `Observation Count`> 1000)
+dim(state45) #there are 151 rows corresponding to this query.
+
+#filter(ozone, Time.Local == "13.14") %>%
+#  select(State.Name, County.Name,Date.Local, Time.Local, Sample.Measurement)
+```
+Choose a numeric column and practice mean(), median(), sd(), var(), IQR(), range(), diff(range())
+```{r}
+mean(ozone$'Observation Count', na.rm=TRUE)
+#note, you have to ignore the null values when calculating measurements of centrality. If there are nulls they have to be ignored.
+#use the str()value to check if the data is numeric or logical, otherwise it will not calculate a mean (of course)
+```
+### Basic stats:
+```{r}
+median<-median(ozone$'Observation Count', na.rm=TRUE)
+sdev<-sd(ozone$'Observation Count', na.rm=TRUE)
+variance<-var(ozone$'Observation Count', na.rm=TRUE)
+IQR<- IQR(ozone$'Observation Count', na.rm=TRUE)
+range<-range(ozone$'Observation Count', na.rm=TRUE)
+diff<-diff(range(ozone$'Observation Count', na.rm=TRUE))
+
+median
+sdev
+variance
+IQR
+range
+diff
+```
+### More wrangling: 
+See how many states are represented in the dataset:
+```{r}
+select(ozone, 'State Code') %>% unique %>% nrow
+unique(ozone$'State Code') #gives list of unique state codes in the data
+```
+Rank the counties by sample duration
+```{r}
+#note if the column names have spaces in them, have to use these small quotes.
+ranking<- ozone %>% group_by(`County Code`) %>% summarize(ozonecount=mean(`Observation Count`)) %>% arrange(desc(ozonecount))
+head(ranking)
+
+ranking2 <- ozone %>% group_by(`County Code`) %>% summarize(ozonecount=mean(`Observation Count`)) %>% arrange(ozonecount)
+
+```
+### cbind and rbind
+```{r}
+#cbind just joins the columns together. The names of columns and their contents do not need to match. 
+cbind(head(ranking, 10),   head(ranking2, 10))
+```
+for rbind, the names of columns have to be the same because you are adding rows to the table.
+```{r}
+topbottom<-rbind(ranking, ranking2)
+topbottom
+```
+### Separating columns:
+```{r}
+library("tidyverse")
+data(who)
+
+
+m1= who %>%
+  gather(Types, Cases, new_sp_m014:newrel_f65,na.rm=TRUE) %>% arrange(desc(Cases))%>%mutate(Types=stringr::str_replace(Types,"newrel","new_rel"))
+
+#The above code demonstrates how to use some of the tidying functions including 'mutate', 'arrange', and 'gather'.
+
+m2 = m1%>% separate(Types, into = c("Col1","Method","SexAge"), sep='_')
+m2%>%arrange(Method)%>%filter(Method=='sp')
+
+
+#The above code shows how to separate a column which contains several variables into several different columns. The columns 'Col1', 'Method', and 'SexAge' used to be one column which contained all of the different parts of those new columns separated by underscores. Example 'new_sp_m3544'. 
+```
+### remove NA's:
+```{r}
+ozone<- na.omit(ozone)
+```
+

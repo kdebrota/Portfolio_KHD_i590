@@ -6,9 +6,12 @@ output: pdf_document
 ---
 
 Regression model
+### Q-Q plot: how to tell if the residuals are normally distributed
 ```{r}
 fitmodel<-lm(dist~speed, data=cars)
 qqnorm(resid(fitmodel), main='normal Q-Q plot, fit_1', col='darkgreen')
 qqline(resid(fitmodel), col='dodgerblue', lwd=2)
+
+# Shapiro test: how to tell if data is normally distributed
 shapiro.test(cars$speed)
 ```
