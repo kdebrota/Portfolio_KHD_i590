@@ -1,0 +1,72 @@
+---
+title: "regex practice in R"
+author: "Kathleen DeBrota"
+date: "April 17, 2019"
+output: pdf_document
+---
+
+
+### RegEx Methods
+### Need the strings library.
+
+Walk through of the lecture on RegEx in R.
+How to select patterns of text and match them using the regex syntax.
+```{r}
+library(stringr)
+library(htmlwidgets)
+library(readxl)
+library(readr)
+library(tidyverse)
+#NOTE! Need all of the above libraries for this to work. 
+
+setwd("C:/Users/kdebr/OneDrive/Applied Data Science Class")
+
+```
+Import data
+```{r}
+x <- read.csv(file="C:/Users/kdebr/OneDrive/Applied Data Science Class/bikeVendors.csv")
+head(x)
+```
+Regex codes and reminders:
+\d = any string
+\s = any white space, incl space or tab
+[abc] = matches exact letter - so here, a, b, or c
+[^abc] = matches anything BUT a, b, or c
+^ matches start of string
+$ matches end of string
+? matches 0 or 1 of something (it's optional)
++ matches 1 or more (at least 1)
+* matches 0 or more (any number including none)
+{n} matches something (the preceding item) exactly n times
+{n,m} matches anything between n and m
+() groups things together
+
+str_detect(string, pattern)
+str_extract(string, pattern)
+str_extract_all(string, pattern)
+str_replace(string, pattern, replacement)
+str_replace_all(string, pattern, replacement)
+str_split(pattern)
+
+
+## Creating a pattern
+```{r}
+elite <- regex("(Elite)", comments=TRUE)
+#Comments=True means you can use comments and white space to make the regex more understandable while typing or reading code.
+#Note, the above is JUST the pattern. Does not do anything yet
+
+str_match(x$category2, elite) 
+#This is how you call the pattern. It gives NA's for all rows where it doesn't find the pattern. Remember the parentheses are what 'group' the letters you want 'together' into one query - otherwise it'll search for 'E', 'l', 'i', 't', 'e' separately.
+
+
+
+```
+```{r}
+#if you do NOT want the NA's...
+results=str_match(x$category2, elite)
+for (i in results){.      #  for every line of results...
+  if(!is.na(i)){.          #if the line is not NA...
+    print(i)
+    }
+}
+```
